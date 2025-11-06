@@ -61,6 +61,20 @@ class BitCombinations:
 
         return combined_matrix
 
+    def print_list(self, l):
+        for element in l:
+            print(element, end = "")
+        print("")
+         
+    def print_mask_matrix(self):
+        for row in self.combined_mat:
+            self.print_list(row)
+
+    def get_ith_mask(self, i, length):
+        mask_i = self.combined_mat[i]
+        return mask_i * (length // len(mask_i)) + mask_i[0:length % len(mask_i)]
+        
+
 
 if __name__ == "__main__":
     combo = BitCombinations(k=5, n=7, m=3)
@@ -78,3 +92,7 @@ if __name__ == "__main__":
     print("\nActual Mask Matrix:")
     for row in combo.combined_mat:
         print(row)
+
+    #combo.print_list([1, 2, 3])
+    combo.print_mask_matrix()
+    combo.print_list(combo.get_ith_mask(0, 80))
