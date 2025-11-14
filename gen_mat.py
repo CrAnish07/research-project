@@ -1,11 +1,12 @@
 from math import comb
 
 class BitCombinations:
-    def __init__(self, k: int, n: int, m: int, sec_len: int):
+    def __init__(self, k: int, n: int, m: int, sec_txt: str):
         self.k = k
         self.n = n
         self.m = m
-        self.sec_len = sec_len
+        self.sec_txt = sec_txt
+        self.sec_len = None 
         self.zeros = k - 1
         self.ones = n - self.zeros
         self.total_comb = comb(n, k - 1)
@@ -95,10 +96,15 @@ class BitCombinations:
         for row in self.repeated_combined_mat:
             self.print_list(row)
 
+    def string_to_binary(self):
+        binary = ''.join(format(ord(c), '08b') for c in self.sec_txt)
+        self.sec_len = len(binary)
+        return self.sec_len
 
 if __name__ == "__main__":
-    combo = BitCombinations(k=5, n=7, m=3, sec_len=80)
+    combo = BitCombinations(k=5, n=7, m=3, sec_txt="secret")
     combo.generate()
+    combo.string_to_binary()
 
     # Transpose and print
     transposed = combo.get_transpose()
