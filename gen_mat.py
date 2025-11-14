@@ -6,6 +6,7 @@ class BitCombinations:
         self.n = n
         self.m = m
         self.sec_txt = sec_txt
+        self.binary_sec_txt = []
         self.sec_len = None 
         self.zeros = k - 1
         self.ones = n - self.zeros
@@ -14,7 +15,8 @@ class BitCombinations:
         self.mand_mask = []   # Will store mandatory mask
         self.combined_mat = []
         self.repeated_combined_mat = []
-        
+        self.combined_AND_mask = []
+
         if not (m < k < n):
             raise ValueError("Must satisfy m < k < n")
 
@@ -96,32 +98,81 @@ class BitCombinations:
         for row in self.repeated_combined_mat:
             self.print_list(row)
 
+    def print_combined_AND_mask(self):
+        for row in self.combined_AND_mask:
+            self.print_list(row)
+
     def string_to_binary(self):
         binary = ''.join(format(ord(c), '08b') for c in self.sec_txt)
-        self.sec_len = len(binary)
+        self.binary_sec_txt = [int(bit) for bit in binary]
+        self.sec_len = len(self.binary_sec_txt)
         return self.sec_len
 
+    def share_generation(self):
+        for row in self.repeated_combined_mat:
+            # AND each bit with the corresponding bit in binary_sec_txt
+            and_row = [a & b for a, b in zip(row, self.binary_sec_txt)]
+            self.combined_AND_mask.append(and_row)
+
+    def binary_to_string(self, bits):
+        #bits = self.binary_sec_txt
+
+        # Make sure list length is a multiple of 8
+        if len(bits) % 8 != 0:
+            raise ValueError("Binary length must be divisible by 8")
+
+        chars = []
+        for i in range(0, len(bits), 8):
+            byte_bits = bits[i:i+8]             # e.g., [0,1,1,0,0,0,0,1]
+            byte_str = ''.join(str(b) for b in byte_bits)
+            char = chr(int(byte_str, 2))        # convert 8-bit binary → character
+            chars.append(char)
+
+        return ''.join(chars)
+
+
+    def share_reconstruction(self):
+        bit_pattern = []
+
+        for i in range(self.sec_len):
+            bit = 0
+            for j in range(2, 7):
+                bit |= self.combined_AND_mask[j][i]
+            bit_pattern.append(bit)
+        
+        return bit_pattern
+
+                
+        
+
 if __name__ == "__main__":
-    combo = BitCombinations(k=5, n=7, m=3, sec_txt="secret")
+    combo = BitCombinations(k=5, n=7, m=3, sec_txt="secr_t")
     combo.generate()
     combo.string_to_binary()
 
+
     # Transpose and print
     transposed = combo.get_transpose()
-    print("\nMask Matrix:")
-    for row in transposed:
-        print(row)
+    # print("\nMask Matrix:")
+    # for row in transposed:
+    #   print(row)
 
     combo.mandatory_mask()
     combo.combined_mat = combo.combine_with_mandatory(transposed)
 
-    print("\nActual Mask Matrix:")
-    for row in combo.combined_mat:
-        print(row)
+   #print("\nActual Mask Matrix:")
+   #for row in combo.combined_mat:
+   #    print(row)
 
     #combo.print_list([1, 2, 3])
     combo.print_mask_matrix()
-    combo.print_list(combo.get_ith_mask(0, 80))
 
     combo.repeated_mask = combo.repeat_mask()
     combo.print_repeated_mask_matrix()
+    print("binary msg: ")
+    combo.print_list(combo.binary_sec_txt)
+    combo.share_generation()
+    print("\nafter ANDING")
+    combo.print_combined_AND_mask()
+
+    print("real msg: ", combo.binary_to_string(combo.share_reconstruction()))

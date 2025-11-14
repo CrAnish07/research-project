@@ -1,0 +1,6 @@
+- M: secret message 
+- H: SHA-256(M)
+- K: Random Symmetic Key
+- E: AES(K, H + M)
+- L: len(E + K)
+- M': message for secret generation (L + K + E)
