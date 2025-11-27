@@ -1,10 +1,27 @@
+import argparse
 from secret_scheme import CryptoLayer, BitCombinations
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Secret sharing using k,n,m parameters")
+
+    parser.add_argument("-k", type=int, required=True, help="threshold k (must satisfy n > k > m)")
+    parser.add_argument("-n", type=int, required=True, help="number of shares n")
+    parser.add_argument("-m", type=int, required=True, help="lower bound m")
+
+    args = parser.parse_args()
+
+    # Validate inequality n > k > m
+    if not (args.n > args.k > args.m):
+        parser.error("Invalid relation: must satisfy n > k > m")
+
+    return args
+
 def main():
-    original_message = "this is my super secret message"
+    args = parse_args()
+
+    original_message = "this is my super hey hey hey secret message"
 
     crypto = CryptoLayer()
-
     M_prime = crypto.build_secret_for_sharing(original_message)
     print("M' (for sharing):", M_prime)
 
